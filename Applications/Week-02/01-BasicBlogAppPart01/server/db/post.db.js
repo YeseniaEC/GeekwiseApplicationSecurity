@@ -7,7 +7,7 @@ class PostDb {
         id = parseInt(id);
         let query = `SELECT * FROM ${TABLENAME} WHERE is_deleted=false AND id = ${id}`;
         console.log(query);
-        return db.oneOrNone(query);
+        return db.oneOrNone(query, [data['title'], data['post'], data['author']]);
     }
 
     static getAll() {
@@ -24,7 +24,7 @@ class PostDb {
         });
         let query = `UPDATE ${TABLENAME} SET ${params.join()} WHERE is_deleted=false AND id = ${id} RETURNING *`;
         console.log(query);
-        return db.one(query);
+        return db.one(query, [data['title'], data['post'], data['author']]);
     }
 
     static deleteOne(id) {
@@ -38,23 +38,24 @@ class PostDb {
     static insertOne(data) {
         let params = [];
         let values = [];
-        Object.keys(data).forEach((key) => {
-            params.push(key);
-            values.push(`'${data[key]}'`);
-        });
-        let query = `INSERT into ${TABLENAME} (${params.join()}) VALUES(${values.join()}) RETURNING *`;
+        // Object.keys(data).forEach((key) => {
+        // params.push(key);
+        // values.push(`'${data[key]}'`);
+        // });
+        //THIS QUERY IS PARAMETERIZED
+        let query = `INSERT into posts (title, post, author) VALUES ($1, $2, $3) RETURNING *`;
         console.log(query);
-        return db.one(query);
+        return db.one(query, [data['title'], data['post'], data['author']]);
     }
 
     static getTotal() {
-        let query = `SELECT count(*) FROM ${TABLENAME}`;
+        let query = `SELECT count(*) FROM posts`;
         console.log(query);
-        return db.one(query, [], a => +a.count);
+        return db.one(query, [data['title'], data['post'], data['author']], a => +a.count);
     }
 
     static search(param) {
-        let query = `SELECT * FROM ${TABLENAME} WHERE is_deleted=false AND post ILIKE '%${param}%' OR author ILIKE '%${param}%'`;
+        let query = `SELECT * FROM posts WHERE is_deleted=false AND post ILIKE '%${param}%' OR author ILIKE '%${param}%'`;
         //let query = `SELECT * FROM ${TABLENAME} WHERE is_deleted=false AND make = '${param}'`;
         console.log(query);
         return db.any(query);
