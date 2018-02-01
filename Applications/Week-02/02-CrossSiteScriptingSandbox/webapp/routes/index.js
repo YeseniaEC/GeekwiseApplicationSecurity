@@ -1,10 +1,7 @@
 var express = require('express');
 var router = express.Router();
-<<<<<<< HEAD
-// var db = require("..db/db")
-=======
+
 var db = require("../db/db");
->>>>>>> upstream/master
 
 /* GET home page. */
 router.get('/', async function(req, res, next) {
